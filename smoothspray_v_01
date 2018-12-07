@@ -1,0 +1,120 @@
+int value = 0;
+// for mousereleased
+
+//This is how far the mouse traveled
+//in the last frame.
+float mouseSpeed = 0;
+
+//We want to smooth out the mouse speed to
+//make the drawing less jerky. This variable
+//will store the smoothed-out value.
+float smoothedSpeed = 0;
+
+float lerpVal = 0.005;
+
+//The mouse speed is usually a pretty small
+//value, so we will want to make it bigger to
+//get a nice visual result.
+float sizeMultiplier = 0.5;
+//Likewise, we always want to have something on
+//screen, even if the mouse hasn't moved. So
+//we set a minimum size for the ellipse.
+float minimumSize = 15;
+
+//This is the position of the virtual pen
+//that draws the circles.
+float penX, penY = 0;
+                                                                                     
+//This is a place to put the final calculated
+//size of the ellipse.
+float ellipseSize = 10;
+
+void setup() {
+  size (1900, 900);
+  fill(255, 255, 255);
+  frameRate(60);
+}
+
+
+void draw() {
+
+  if (keyPressed) {
+    if (key == 'b' || key == 'B') {
+      background(255);
+    }
+  }
+  fill(0, 102, 153);
+  textSize(20); 
+  text("Fast= skinny , slow=fat , press b to clear", 10, 60);
+  // background(120,130,140);
+  noStroke();
+  //Measure how far the mouse has traveled since the last
+  //frame.
+   for (int l=0; l<(20); l++) {
+  mouseCalc();
+  
+  drawSpray();
+   }
+}
+      
+    void mouseCalc(){  
+  mouseSpeed =  dist(mouseX, mouseY, pmouseX, pmouseY);
+  mouseSpeed = mouseSpeed * sizeMultiplier;
+  println(mouseSpeed);
+  //Ease the speed using lerp. This makes the ball
+  //grow or shrink slowly rather than popping between
+  //different sizes.
+  smoothedSpeed = lerp(smoothedSpeed, mouseSpeed, lerpVal);
+  println(smoothedSpeed);
+  //   smoothed mouse slowwwwwww
+  //Move the pen so that it tracks the mouse.
+  penX = lerp(penX, mouseX, lerpVal + 0.01);
+  penY = lerp(penY, mouseY, lerpVal + 0.01);
+  ellipseSize = minimumSize-smoothedSpeed;
+    }
+    
+void drawSpray(){
+  float ellipseSizeLimit = constrain(ellipseSize, 2, 300);
+  if (mousePressed == true) {
+    //Draw the ellipse under the pen.
+    for (int i=0; i<(1+smoothedSpeed); i++) {
+      float r1=random(5)+ellipseSizeLimit;
+      float angle = random(TWO_PI); 
+      float x1=(r1*cos(angle)) + penX;
+      float y1=(r1*sin(angle)) + penY;
+      stroke(25, 100, 70, 200); 
+      point(x1, y1);
+
+      float r2=random(3)+ellipseSizeLimit;
+      float angle2 = random(TWO_PI); 
+      float x2=(r2*cos(angle2)) + penX;
+      float y2=(r2*sin(angle2)) + penY;
+      stroke(25, 100, 70, 200); 
+      point(x2, y2);
+      point(x1, y2);
+
+
+      float r3=random(ellipseSizeLimit*2);
+      float angle3 = random(TWO_PI); 
+      float x3=(r3*cos(angle3)) + penX;
+      float y3=(r3*sin(angle3)) + penY;
+      stroke(25, 100, 70, 200); 
+      point(x3, y3);
+      point(x1, y3);
+      //point(x2, y3);
+      //  rect (penX, penY, ellipseSizeLimit, ellipseSizeLimit);
+  
+    }
+  } else {
+       penX = mouseX;
+    penY = mouseY; 
+  }
+}
+
+void mouseReleased() {
+  if (value == 0) {
+    smoothedSpeed = 0;
+    penX = mouseX;
+    penY = mouseY;
+  }
+}
